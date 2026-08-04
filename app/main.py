@@ -1,15 +1,8 @@
 from fastapi import FastAPI
+from app.schemas import ExpenseCreate
 
 app = FastAPI()
 
-@app.get("/Hello")
-def Hello():
-    return {
-        "message": "Hello Dhruv!"
-    }
-
-@app.get("/Goodbye")
-def goodbye():
-    return{
-        "Message" : "Goodbye Dhruv!"
-    }
+@app.post("/expenses")
+def create_expense(expense: ExpenseCreate):
+    return expense
