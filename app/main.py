@@ -1,14 +1,14 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.schemas import ExpenseCreate
+from app.schemas import ExpenseCreate, ExpenseResponse
 from app.models import Expense
 
 
 app = FastAPI()
 
-@app.post("/expenses")
+@app.post("/expenses", response_model=ExpenseResponse)
 def create_expense(
     expense: ExpenseCreate,
     db: Session = Depends(get_db)
@@ -24,3 +24,20 @@ def create_expense(
     db.refresh(db_expense)
 
     return db_expense
+
+@app.get("/expenses/{expense_id}", response_model=ExpenseResponse)
+def return_expense(
+    expense_id: int,
+    db: Session = Depends(get_db)
+):
+    expense = db.query(Expense).filter(
+        Expense.id == expense_id
+    ).first()
+
+    if expense is None:
+        raise HTTPException(
+            status_code = 404,
+            detail="Expense not found"
+        )
+
+    return expense
